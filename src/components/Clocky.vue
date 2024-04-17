@@ -1,4 +1,5 @@
 <script setup lang="ts">
+defineEmits(['close'])
 import { ref, onMounted, onUnmounted } from 'vue'
 
 const props = defineProps<{ timeZone: string }>()
@@ -9,7 +10,7 @@ let intervalId: any
 
 onMounted(() => {
     if (!isValid(props.timeZone)) {
-        return
+        return;
     }
     intervalId = setInterval(() => {
         day.value = Intl.DateTimeFormat(navigator.language, {
@@ -18,18 +19,18 @@ onMounted(() => {
             year: 'numeric',
             timeZoneName: 'shortOffset',
             timeZone: props.timeZone,
-        }).format()
+        }).format();
         time.value = Intl.DateTimeFormat(navigator.language, {
             hour: '2-digit',
             minute: 'numeric',
             second: 'numeric',
             timeZone: props.timeZone,
-        }).format()
-    }, 1000)
+        }).format();
+    }, 1000);
 })
 
 
-const isValid = (tz: string): boolean => {
+function isValid(tz: string): boolean {
     if (!Intl?.DateTimeFormat().resolvedOptions().timeZone) {
         throw new Error('Time zones are not available in this environment');
     }
@@ -47,6 +48,7 @@ onUnmounted(() => clearInterval(intervalId))
 
 <template>
     <div class="notice" v-if="isValid(timeZone)">
+        <button class="close-btn" @click="$emit('close')">x</button>
         <p>{{ timeZone }}</p>
         <p>{{ day }}</p>
         <p>{{ time }}</p>
@@ -55,3 +57,17 @@ onUnmounted(() => clearInterval(intervalId))
         <p>Invalid timezone</p>
     </div>
 </template>
+<style scoped>
+.notice {
+    position: relative !important;
+    width: 250px;
+}
+
+.close-btn {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    top: -2px;
+    right: -2px;
+}
+</style>
